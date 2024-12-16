@@ -3,10 +3,10 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 
 interface PhotoContextType {
-  currentPhoto: CameraCapturedPicture | null;
-  setCurrentPhoto: (photo: CameraCapturedPicture) => void;
-  prediction: PredictionTypes | null;
-  setPrediction: (prediction: PredictionTypes) => void;
+  currentPhoto: CameraCapturedPicture | null | undefined;
+  setCurrentPhoto: (photo: CameraCapturedPicture | undefined) => void;
+  currentprediction: PredictionTypes | null;
+  setCurrentPrediction: (prediction: PredictionTypes) => void;
 }
 
 interface PredictionTypes {
@@ -19,23 +19,29 @@ export const PhotoContext = createContext<PhotoContextType | null>(null);
 export const PhotoContextProvider = ({ children }: {children: React.ReactNode}) => {
 
   const classes = ["Healthy", "Multiple diseases", "Rust", "Scab"]
-  const [currentPhoto, setCurrentPhoto] = useState<CameraCapturedPicture | null>(null);
-  const [prediction, setPrediction] = useState<PredictionTypes | null>(null);
+  const [currentPhoto, setCurrentPhoto] = useState<CameraCapturedPicture | null | undefined>(null);
+  const [currentprediction, setCurrentPrediction] = useState<PredictionTypes | null>(null);
 
+  useEffect(() => {
+    if (currentprediction) {
+      console.log(currentprediction)
+      console.log(currentPhoto)
+    }
+  }, [currentprediction, currentPhoto])
 
   return (
     <PhotoContext.Provider value={{
       currentPhoto,
       setCurrentPhoto,
-      prediction,
-      setPrediction
+      currentprediction,
+      setCurrentPrediction
     }}>
       {children}
     </PhotoContext.Provider>
   );
 };
 
-export const useCurrentPhoto = () => {
+export const usePhoto = () => {
   const values = useContext(PhotoContext);
 
   if (!values) {

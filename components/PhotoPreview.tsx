@@ -3,6 +3,9 @@ import { Ionicons, Fontisto, FontAwesome5 } from '@expo/vector-icons'
 import React, { useEffect, useState } from 'react'
 import { CameraCapturedPicture } from 'expo-camera'
 import { uriToBlob } from '@/utils/helpers';
+import { PredictionTypes } from '@/src/interface/predictions';
+import { hp, wp } from '@/src/helper/common';
+import { usePhoto } from '@/src/context/photoContext';
 
 
 export default function PhotoPreview({
@@ -13,13 +16,21 @@ export default function PhotoPreview({
     handleRetakePhoto: () => void,
 }) {
   
-  const [prediction, setPrediction] = useState<string | null>(null);
+  const [prediction, setPrediction] = useState<PredictionTypes | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const { setCurrentPhoto, setCurrentPrediction } = usePhoto();
+  
+  useEffect(() => {
+    setCurrentPhoto(photo);
+  }, [])
+
   const handleProcessImage = async () => {
     setLoading(true);
 
     const response = await fetch(photo.uri);
     const blob = await response.blob();
+
+    
 
     const photoData = {
         uri: photo.uri, // Ruta URI de la imagen capturada
@@ -42,7 +53,10 @@ export default function PhotoPreview({
         const result = await response.json();
         console.log(result);
         if (response.ok) {
-            setPrediction(result.prediction);
+            
+            
+            setPrediction(result);
+            setCurrentPrediction(result);
         } else {
             Alert.alert('Error', 'No se pudo procesar la imagen');
         }
@@ -67,12 +81,21 @@ export default function PhotoPreview({
                 <FontAwesome5 name="arrow-left" size={30} color="white" style={styles.icon}/>
             </TouchableOpacity>
 
-            <TouchableOpacity style={{position: 'absolute', bottom: 20, flex: 1, flexDirection: 'row', alignSelf: 'center'}} onPress={handleProcessImage}>
+            <TouchableOpacity style={styles.procesar} onPress={handleProcessImage}>
                 <Text style={{fontSize: 18, color: 'white'}}>Procesar Imagen</Text>
             </TouchableOpacity>
-            <View style={{position: 'absolute', top: 50, flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
-                <Text style={{fontSize: 18, color: 'white', textAlign: 'center'}}> {prediction}</Text>
+            <View style={{position: 'absolute', top: hp(10), flex: 1, flexDirection: 'row', alignSelf: 'center',}}>
+                <Text style={{fontSize: 20, color: 'white', textAlign: 'center', fontWeight: 700}}> {prediction?.prediction}</Text>
             </View>
+
+
+            {
+                loading && (
+                    <View style={{position: 'absolute', top: hp(50), left: wp(40), flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
+                        <Text style={{fontSize: 18, color: 'white', textAlign: 'center'}}> Procesando...</Text>
+                    </View>
+                )
+            }
         </View>
     </SafeAreaView>
   )
@@ -93,12 +116,25 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         width: '100%',
-        top: 40,
-        left: 20,
+        top: hp(5),
+        left: wp(5),
     },
     icon: {
-        padding: 10,
-        backgroundColor: 'gray',
+        paddingHorizontal: wp(4),
+        paddingVertical: hp(1.2),
         borderRadius: 5,
+        borderWidth: 2,
     },
+    procesar: {
+        position: 'absolute', 
+        bottom: 20, 
+        flex: 1, 
+        flexDirection: 'row', 
+        alignSelf: 'center',
+        borderWidth: 2,
+        paddingHorizontal: wp(10),
+        paddingVertical: hp(1.5),
+        borderRadius: 5,
+        
+    }
 })

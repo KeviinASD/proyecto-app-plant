@@ -1,5 +1,6 @@
 
 import PhotoPreview from '@/components/PhotoPreview';
+import { usePhoto } from '@/src/context/photoContext';
 import { AntDesign } from '@expo/vector-icons';
 import { CameraView, CameraType, useCameraPermissions, CameraCapturedPicture } from 'expo-camera';
 import { useRef, useState } from 'react';
@@ -11,6 +12,8 @@ export default function Camera() {
     //const [flash, setFlash] = useState();
     const [photo, setPhoto] = useState<CameraCapturedPicture | null | undefined>(null);
     const cameraRef = useRef<CameraView | null>(null);
+    const {setCurrentPhoto} = usePhoto();
+    //context
   
     if (!permission) {
       // Camera permissions are still loading.
